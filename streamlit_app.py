@@ -1211,72 +1211,121 @@ def run_master_pipeline(uploaded_files):
     return output_dfs
 
 # ---------------------------- STREAMLIT UI ----------------------------
+import streamlit as st
+import pandas as pd
+from io import BytesIO
+import re
+
+# ---------------------------- FUND PROCESSORS ----------------------------
+def process_adityabirla(file_bytes):
+    # TODO: Implement Aditya Birla processor
+    return pd.DataFrame()
+
+def process_mahindra(file_bytes):
+    # TODO: Implement Mahindra processor
+    return pd.DataFrame()
+
+def process_mirae(file_bytes):
+    # TODO: Implement Mirae processor
+    return pd.DataFrame()
+
+def process_shriram(file_bytes):
+    # TODO: Implement Shriram processor
+    return pd.DataFrame()
+
+def process_sundaram(file_bytes):
+    # TODO: Implement Sundaram processor
+    return pd.DataFrame()
+
+# ---------------------------- NAME NORMALIZATION ----------------------------
+def normalize_name(filename):
+    name = re.sub(r"\s\(\d+\)", "", filename)  # removes (1), (2), etc.
+    return name.lower().split('.')[0].replace(" ", "_")
+
+# ---------------------------- PROCESSOR MAPPING ----------------------------
+fund_processors = {
+    "adityabirla": process_adityabirla,
+    "mahindra": process_mahindra,
+    "mirae": process_mirae,
+    "shriram": process_shriram,
+    "sundaram": process_sundaram,
+    # Add additional mappings as needed
+}
+
+def match_processor_key(name_key):
+    for key in fund_processors:
+        if name_key == key or name_key.replace("_", "") == key.replace("_", ""):
+            return fund_processors[key]
+    return None
+
+# ---------------------------- MASTER PIPELINE ----------------------------
+def run_master_pipeline(uploaded_files):
+    output_dfs = {}
+    for file_name, file_bytes in uploaded_files.items():
+        name_key = normalize_name(file_name)
+        processor = match_processor_key(name_key)
+
+        if processor:
+            try:
+                df = processor(file_bytes)
+                if isinstance(df, pd.DataFrame):
+                    output_dfs[name_key] = df
+                else:
+                    output_dfs[name_key] = "Returned object is not a DataFrame"
+            except Exception as e:
+                output_dfs[name_key] = f"Error: {str(e)}"
+        else:
+            output_dfs[name_key] = "No matching processor found"
+    return output_dfs
+
+# ---------------------------- STREAMLIT UI ----------------------------
+
 st.set_page_config(page_title="Mutual Fund Allocation Generator", layout="centered")
 
 st.markdown(
     """
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
-
 .stApp {
-    background: linear-gradient(135deg, #f3f2ff 0%, #e0f7fa 100%);
-    font-family: 'Poppins', sans-serif;
-    animation: fadeIn 1.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-    0% {opacity: 0; transform: translateY(-10px);}
-    100% {opacity: 1; transform: translateY(0);}
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 .title {
-    font-size: 3rem;
-    font-weight: 700;
+    font-size: 2.5rem;
+    font-weight: bold;
     text-align: center;
     margin-top: 1rem;
-    color: #2c3e50;
-    animation: fadeIn 1.6s ease-in-out;
+    color: #ffffff;
 }
 
 .subtitle {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     text-align: center;
-    color: #555;
+    color: #cccccc;
     margin-bottom: 2rem;
-    animation: fadeIn 2s ease-in-out;
 }
 
-/* Customize file uploader */
-.css-1kyxreq.edgvbvh3 {
-    background-color: #ffffff;
-    border: 2px dashed #7f8c8d;
-    border-radius: 10px;
-    padding: 1rem;
-    transition: all 0.3s ease-in-out;
-}
-
-.css-1kyxreq.edgvbvh3:hover {
-    border-color: #2980b9;
-    background-color: #f9f9f9;
-    transform: scale(1.02);
-}
-
-/* Button enhancements */
 .stButton>button {
-    background-color: #3498db;
-    color: white;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 0.5rem 1.5rem;
+    background-color: #1e88e5;
+    color: #ffffff;
+    border-radius: 6px;
     border: none;
-    transition: background 0.3s ease-in-out;
+    padding: 0.5rem 1.5rem;
 }
 
 .stButton>button:hover {
-    background-color: #2980b9;
+    background-color: #1565c0;
 }
 
-/* Header and section styling */
+.css-1kyxreq.edgvbvh3 {
+    background-color: #1e1e1e;
+    border: 1px dashed #555;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #ccc;
+}
+
 .block-container {
     padding-top: 2rem;
 }

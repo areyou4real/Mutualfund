@@ -50,9 +50,15 @@ if uploaded_files:
     # ---- EXPORT BUTTON ----
     output = BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        for fund_name, df in results.items():
-            if isinstance(df, pd.DataFrame):
-                df.to_excel(writer, index=False, sheet_name=fund_name[:31])
+    wrote_at_least_one_sheet = False
+    for fund_name, df in results.items():
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            df.to_excel(writer, index=False, sheet_name=fund_name[:31])
+            wrote_at_least_one_sheet = True
+
+    if not wrote_at_least_one_sheet:
+        st.error("❌ No valid sheets to export. Please check uploaded files.")
+        st.stop()
     output.seek(0)
 
     st.download_button(

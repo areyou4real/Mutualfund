@@ -1211,9 +1211,83 @@ def run_master_pipeline(uploaded_files):
     return output_dfs
 
 # ---------------------------- STREAMLIT UI ----------------------------
-st.title("🧾 Mutual Fund Allocation Generator")
-st.markdown("Upload one or more mutual fund Excel files. The app will detect the allocations and return a cleaned summary.")
+from streamlit.components.v1 import html
 
+st.set_page_config(page_title="Mutual Fund Allocation Generator", layout="centered")
+
+st.markdown(
+    """
+    <style>
+.stApp {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 2rem 1rem;
+    max-width: 960px;
+    margin: auto;
+}
+
+.title {
+    font-size: 2.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 1rem;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    text-align: center;
+    color: #aaaaaa;
+    margin-bottom: 2rem;
+}
+
+.stButton>button {
+    background-color: #1e88e5;
+    color: #ffffff;
+    border-radius: 6px;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+}
+
+.stButton>button:hover {
+    background-color: #1565c0;
+}
+
+.css-1kyxreq.edgvbvh3 {
+    background-color: #1e1e1e;
+    border: 1px dashed #444;
+    border-radius: 8px;
+    padding: 1.25rem;
+    color: #ccc;
+    margin-bottom: 2rem;
+}
+
+.block-container {
+    padding-top: 2rem;
+}
+    
+@keyframes fadeSlideUp {
+    0% {opacity: 0; transform: translateY(20px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+.fade-in {
+    animation: fadeSlideUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+</style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown('<div class="title fade-in">🧾 Mutual Fund Allocation Generator</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle fade-in">Upload one or more mutual fund Excel files. The app will detect the allocations and return a cleaned summary.</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="fade-in">', unsafe_allow_html=True)
 uploaded_files = st.file_uploader("Upload Excel files", type=["xlsx"], accept_multiple_files=True)
 
 if uploaded_files:
@@ -1224,22 +1298,22 @@ if uploaded_files:
     error_results = {k: v for k, v in results.items() if not isinstance(v, pd.DataFrame)}
 
     if error_results:
-        st.subheader("❌ Errors")
+        st.subheader("❌ Errors Detected")
         for name, error in error_results.items():
             st.error(f"{name}: {error}")
 
     if valid_results:
-        st.subheader("✅ Fund Summaries")
+        st.subheader("✅ Fund Allocation Summaries")
         for name, df in valid_results.items():
-            with st.expander(f"{name.title()} Summary"):
-                st.dataframe(df)
+            with st.expander(f"📁 {name.title()} Allocation Summary"):
+                st.dataframe(df.style.format({"Final Value": "{:.2f}"}))
 
-        # Download button
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             for name, df in valid_results.items():
                 df.to_excel(writer, sheet_name=name[:31], index=False)
         output.seek(0)
-        st.download_button("📥 Download", output, file_name="Allocation Output.xlsx")
+                st.markdown('</div>', unsafe_allow_html=True)
+        st.download_button("📥 Download All Results", output, file_name="Allocation_Output.xlsx", use_container_width=True)
     else:
-        st.warning("No valid dataframes to display or download.")
+        st.info("🔎 No valid dataframes to display or download.")

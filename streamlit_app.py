@@ -1211,8 +1211,42 @@ def run_master_pipeline(uploaded_files):
     return output_dfs
 
 # ---------------------------- STREAMLIT UI ----------------------------
-st.title("🧾 Mutual Fund Summary Generator")
-st.markdown("Upload one or more mutual fund Excel files. The app will detect the AMC and return a cleaned summary.")
+from PIL import Image
+import base64
+
+def set_bg_color():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background: linear-gradient(to right, #f8fbff, #e6f0ff);
+            color: #000000;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding-top: 1rem;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .css-1kyxreq.edgvbvh3 {  /* Narrow upload area */
+            max-width: 500px;
+            margin: auto;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_bg_color()
+
+st.markdown('<div class="title">📊 Mutual Fund Allocation Generator</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Upload one or more mutual fund Excel files to generate a clean and categorized allocation summary.</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("Upload Excel files", type=["xlsx"], accept_multiple_files=True)
 
@@ -1224,22 +1258,21 @@ if uploaded_files:
     error_results = {k: v for k, v in results.items() if not isinstance(v, pd.DataFrame)}
 
     if error_results:
-        st.subheader("❌ Errors")
+        st.subheader("❌ Errors Detected")
         for name, error in error_results.items():
             st.error(f"{name}: {error}")
 
     if valid_results:
-        st.subheader("✅ Fund Summaries")
+        st.subheader("✅ Fund Allocation Summaries")
         for name, df in valid_results.items():
-            with st.expander(f"{name.title()} Summary"):
-                st.dataframe(df)
+            with st.expander(f"📁 {name.title()} Allocation Summary"):
+                st.dataframe(df.style.format({"Final Value": "{:.2f}"}))
 
-        # Download button
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             for name, df in valid_results.items():
                 df.to_excel(writer, sheet_name=name[:31], index=False)
         output.seek(0)
-        st.download_button("📥 Download Combined Excel", output, file_name="all_funds_summary.xlsx")
+        st.download_button("📥 Download All Results", output, file_name="Allocation_Output.xlsx", use_container_width=True)
     else:
-        st.warning("No valid dataframes to display or download.")
+        st.info("🔎 No valid dataframes to display or download.")

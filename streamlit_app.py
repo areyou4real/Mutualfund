@@ -1216,24 +1216,71 @@ st.set_page_config(page_title="Mutual Fund Allocation Generator", layout="center
 st.markdown(
     """
     <style>
-    .stApp {
-        background: linear-gradient(to right, #f8fbff, #e6f0ff);
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        text-align: center;
-        padding-top: 1rem;
-        color: #003366;
-    }
-    .subtitle {
-        font-size: 1.1rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        color: #444;
-    }
-    </style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+.stApp {
+    background: linear-gradient(135deg, #f3f2ff 0%, #e0f7fa 100%);
+    font-family: 'Poppins', sans-serif;
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0; transform: translateY(-10px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 1rem;
+    color: #2c3e50;
+    animation: fadeIn 1.6s ease-in-out;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    text-align: center;
+    color: #555;
+    margin-bottom: 2rem;
+    animation: fadeIn 2s ease-in-out;
+}
+
+/* Customize file uploader */
+.css-1kyxreq.edgvbvh3 {
+    background-color: #ffffff;
+    border: 2px dashed #7f8c8d;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.css-1kyxreq.edgvbvh3:hover {
+    border-color: #2980b9;
+    background-color: #f9f9f9;
+    transform: scale(1.02);
+}
+
+/* Button enhancements */
+.stButton>button {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    transition: background 0.3s ease-in-out;
+}
+
+.stButton>button:hover {
+    background-color: #2980b9;
+}
+
+/* Header and section styling */
+.block-container {
+    padding-top: 2rem;
+}
+</style>
     """,
     unsafe_allow_html=True
 )

@@ -1313,7 +1313,7 @@ if uploaded_files:
             for name, df in valid_results.items():
                 df.to_excel(writer, sheet_name=name[:31], index=False)
         output.seek(0)
-st.markdown('</div>', unsafe_allow_html=True)
-        st.download_button("📥 Download All Results", output, file_name="Allocation_Output.xlsx", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.download_button("📥 Download All Results", output, file_name="Allocation_Output.xlsx", use_container_width=True)
     else:
         st.info("🔎 No valid dataframes to display or download.")

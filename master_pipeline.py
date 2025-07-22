@@ -1166,7 +1166,7 @@ def process_sundaram(file_bytes):
 
 # ---------------------------- PROCESSOR MAPPING ----------------------------
 
-fund_processors = {
+FUND_PROCESSORS = {
     "adityabirla": process_adityabirla,
      "axis": process_axis,
      "baroda": process_baroda,

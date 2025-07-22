@@ -1214,7 +1214,7 @@ def run_master_pipeline(uploaded_files):
 from PIL import Image
 import base64
 
-def def load_lottie_animation():
+def load_lottie_animation():
     st.markdown(
         '''
         <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>

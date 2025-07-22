@@ -1217,7 +1217,7 @@ st.markdown(
     """
     <style>
 .stApp {
-    background-color: #121212;
+    background-color: #60615c;
     color: #e0e0e0;
     font-family: 'Segoe UI', sans-serif;
     padding: 2rem 1rem;

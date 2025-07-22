@@ -1220,20 +1220,24 @@ st.markdown(
     background-color: #121212;
     color: #e0e0e0;
     font-family: 'Segoe UI', sans-serif;
+    padding: 2rem 1rem;
+    max-width: 960px;
+    margin: auto;
 }
 
 .title {
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 2.8rem;
+    font-weight: 600;
     text-align: center;
     margin-top: 1rem;
     color: #ffffff;
+    margin-bottom: 0.25rem;
 }
 
 .subtitle {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     text-align: center;
-    color: #cccccc;
+    color: #aaaaaa;
     margin-bottom: 2rem;
 }
 
@@ -1242,7 +1246,9 @@ st.markdown(
     color: #ffffff;
     border-radius: 6px;
     border: none;
-    padding: 0.5rem 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
 }
 
 .stButton>button:hover {
@@ -1251,10 +1257,11 @@ st.markdown(
 
 .css-1kyxreq.edgvbvh3 {
     background-color: #1e1e1e;
-    border: 1px dashed #555;
+    border: 1px dashed #444;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 1.25rem;
     color: #ccc;
+    margin-bottom: 2rem;
 }
 
 .block-container {

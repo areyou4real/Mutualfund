@@ -1,7 +1,7 @@
 import pandas as pd
 from io import BytesIO
 import re
-
+from google.colab import files
 # ---------------------------- FUND PROCESSORS ----------------------------
 def process_adityabirla(file_bytes):
     import pandas as pd
@@ -1164,9 +1164,19 @@ def process_sundaram(file_bytes):
     return final_df[["Tag", "Final Value"]]
 
 
+# ---------------------------- NAME NORMALIZATION ----------------------------
+
+def normalize_name(filename):
+    """
+    Strips extension and suffixes like ' (1)', ' (2)' from uploaded filenames.
+    """
+    name = re.sub(r"\s\(\d+\)", "", filename)  # removes (1), (2), etc.
+    return name.lower().split('.')[0].replace(" ", "_")
+
+
 # ---------------------------- PROCESSOR MAPPING ----------------------------
 
-FUND_PROCESSORS = {
+fund_processors = {
     "adityabirla": process_adityabirla,
      "axis": process_axis,
      "baroda": process_baroda,
@@ -1180,46 +1190,52 @@ FUND_PROCESSORS = {
 }
 
 
-def normalize_filename(name):
-    return name.split("(")[0].strip().replace(" ", "").lower()
+def match_processor_key(name_key):
+    for key in fund_processors:
+        if name_key == key or name_key.replace("_", "") == key.replace("_", ""):
+            return fund_processors[key]
+    return None
+
+
+# ---------------------------- MASTER PIPELINE ----------------------------
 
 def run_master_pipeline(uploaded_files):
-    results = {}
-    for filename, file_bytes in uploaded_files.items():
-        fund_key = normalize_filename(filename)
-        print(f"Processing: {filename} → {fund_key}")
-        processor = FUND_PROCESSORS.get(fund_key)
+    output_dfs = {}
+    for file_name, file_bytes in uploaded_files.items():
+        name_key = normalize_name(file_name)
+        processor = match_processor_key(name_key)
+
         if processor:
             try:
                 df = processor(file_bytes)
-                results[fund_key] = df
+                if isinstance(df, pd.DataFrame):
+                    output_dfs[name_key] = df
+                else:
+                    output_dfs[name_key] = "Returned object is not a DataFrame"
             except Exception as e:
-                print(f"[ERROR] {fund_key}: {e}")
-                results[fund_key] = f"Error: {e}"
+                output_dfs[name_key] = f"Error: {str(e)}"
         else:
-            print(f"[SKIPPED] No processor for: {fund_key}")
-            results[fund_key] = "No processor found"
-    return results
+            output_dfs[name_key] = "No matching processor found"
+    return output_dfs
 
 
-# ---------------------------- STREAMLIT USAGE ----------------------------
-# The following block is only for reference. Actual usage happens in `app.py`.
-# In app.py, call: run_master_pipeline(uploaded_files)
-# Then save the DataFrames returned in `results` to Excel.
+# ---------------------------- FILE UPLOAD + OUTPUT ----------------------------
 
-# Example usage in app.py:
-#
-# import streamlit as st
-# from master_pipeline import run_master_pipeline
-# import pandas as pd
-#
-# uploaded_files = st.file_uploader("Upload Excel files", accept_multiple_files=True, type=["xlsx"])
-#
-# if uploaded_files:
-#     byte_data = {f.name: f.read() for f in uploaded_files}
-#     results = run_master_pipeline(byte_data)
-#
-#     with pd.ExcelWriter("combined_output.xlsx") as writer:
-#         for fund_name, df in results.items():
-#             if isinstance(df, pd.DataFrame):
-#                 df.to_excel(writer, index=False, sheet_name=fund_name[:31])
+uploaded = files.upload()
+results = run_master_pipeline(uploaded)
+
+# Log all errors
+for name, result in results.items():
+    if not isinstance(result, pd.DataFrame):
+        print(f"[ERROR] {name}: {result}")
+
+# Write only successful results
+valid_results = {k: v for k, v in results.items() if isinstance(v, pd.DataFrame)}
+
+if valid_results:
+    with pd.ExcelWriter("all_funds_summary.xlsx") as writer:
+        for fund_name, df in valid_results.items():
+            df.to_excel(writer, sheet_name=fund_name[:31], index=False)
+    files.download("all_funds_summary.xlsx")
+else:
+    print("❌ No valid DataFrames to write.")
